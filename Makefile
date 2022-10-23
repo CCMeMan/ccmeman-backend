@@ -9,7 +9,8 @@ default:
 # https://www.digitalocean.com/community/tutorials/how-to-install-and-use-the-yarn-package-manager-for-node-js
 
 install-yarn-global:
-	npm install --global yarn
+	#npm install --global yarn
+	corepack enable
 install-yarn-local:
 	yarn set version berry
 
