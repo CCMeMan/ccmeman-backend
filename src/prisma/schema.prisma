@@ -10,8 +10,47 @@ datasource db {
     url      = env("POSTGRES_URL")
 }
 
+// Reference: many-to-many relations
+// https://www.prisma.io/docs/concepts/components/prisma-schema/relations/many-to-many-relations
+
+// ================================================================
+// ============================ Models ============================
+// ================================================================
+
+// Users
 model User {
-    id    String @id @default(uuid())
-    name  String
-    email String
+    id                String               @id @default(uuid())
+    name              String
+    email             String
+    meetingsMemberOf  MembersOnMeetings[]
+    meetingsManagerOf ManagersOnMeetings[]
+}
+
+// Groups
+
+// Folders
+
+// Meetings
+model Meeting {
+    id       String               @id @default(uuid())
+    members  MembersOnMeetings[]
+    managers ManagersOnMeetings[]
+}
+
+model MembersOnMeetings {
+    meeting   Meeting @relation(fields: [meetingId], references: [id])
+    meetingId String
+    member    User    @relation(fields: [memberId], references: [id])
+    memberId  String
+
+    @@id([meetingId, memberId])
+}
+
+model ManagersOnMeetings {
+    meeting   Meeting @relation(fields: [meetingId], references: [id])
+    meetingId String
+    manager   User    @relation(fields: [managerId], references: [id])
+    managerId String
+
+    @@id([meetingId, managerId])
 }
