@@ -37,11 +37,12 @@ model Meeting {
 }
 
 model UsersOnMeetings {
-    meeting   Meeting @relation(fields: [meetingId], references: [id])
-    meetingId String
-    user      User    @relation(fields: [userId], references: [id])
-    userId    String
-    role      Role[]  @default([GUEST])
+    meeting     Meeting @relation(fields: [meetingId], references: [id])
+    meetingId   String
+    user        User    @relation(fields: [userId], references: [id])
+    userId      String
+    role        Role[]  @default([GUEST])
+    publicEmail String
 
     @@id([meetingId, userId])
 }
