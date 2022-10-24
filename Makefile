@@ -6,6 +6,19 @@ help:
 run:
 	yarn server
 
+db-generate:
+	npx prisma generate
+
+db-migrate:
+	yarn db-migrate
+
+clean-yarn:
+	-rm -r .yarn
+	-rm -r .yarnrc.yml
+	-rm -r node_modules
+	-rm -r package-lock.json
+	-rm -r yarn.lock
+
 
 # =====================================================
 # Init
@@ -23,3 +36,4 @@ install-yarn-local:
 # One Time Usage
 yarn-brand-new-project-init:
 	yarn init
+
