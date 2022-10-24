@@ -1,3 +1,6 @@
+# dotenv-defaults
+.env
+
 # Yarn (non-ZeroInstalls, Reference: https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored)
 .pnp.*
 .yarn/*
