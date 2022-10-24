@@ -19,11 +19,11 @@ datasource db {
 
 // Users
 model User {
-    id                String               @id @default(uuid())
-    name              String
-    email             String
-    meetingsMemberOf  MembersOnMeetings[]
-    meetingsManagerOf ManagersOnMeetings[]
+    id         String            @id @default(uuid())
+    name       String
+    email      String
+    systemRole SystemRole
+    meetings   UsersOnMeetings[]
 }
 
 // Groups
@@ -32,25 +32,28 @@ model User {
 
 // Meetings
 model Meeting {
-    id       String               @id @default(uuid())
-    members  MembersOnMeetings[]
-    managers ManagersOnMeetings[]
+    id    String            @id @default(uuid())
+    users UsersOnMeetings[]
 }
 
-model MembersOnMeetings {
+model UsersOnMeetings {
     meeting   Meeting @relation(fields: [meetingId], references: [id])
     meetingId String
-    member    User    @relation(fields: [memberId], references: [id])
-    memberId  String
+    user      User    @relation(fields: [userId], references: [id])
+    userId    String
+    role      Role[]  @default([GUEST])
 
-    @@id([meetingId, memberId])
+    @@id([meetingId, userId])
 }
 
-model ManagersOnMeetings {
-    meeting   Meeting @relation(fields: [meetingId], references: [id])
-    meetingId String
-    manager   User    @relation(fields: [managerId], references: [id])
-    managerId String
+// Roles
+enum Role {
+    MANAGER
+    MEMBER
+    GUEST
+}
 
-    @@id([meetingId, managerId])
+enum SystemRole {
+    USER
+    ADMIN
 }
