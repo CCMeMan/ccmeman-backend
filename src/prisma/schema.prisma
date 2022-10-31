@@ -20,18 +20,21 @@ datasource db {
 // Users
 model User {
     id              Int               @id @default(autoincrement())
-    userIdFromAuth0 String
-    name            String
-    email           String
-    systemRole      SystemRole
+    userIdFromAuth0 String            @unique
+    name            String?
+    email           String?
+    systemRole      SystemRole        @default(USER)
     groups          UsersOnGroups[]
     meetings        UsersOnMeetings[]
 }
 
 // Groups
 model Group {
-    id    Int             @id @default(autoincrement())
-    users UsersOnGroups[]
+    id       Int             @id @default(autoincrement())
+    sUUID    String          @unique
+    name     String
+    users    UsersOnGroups[]
+    meetings Meeting[]
 }
 
 model UsersOnGroups {
@@ -49,10 +52,14 @@ model UsersOnGroups {
 // Meetings
 model Meeting {
     id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now()) @db.Timestamptz()
+    createdAt DateTime @default(now())
+
+    sUUID   String @unique
+    name    String
+    group   Group  @relation(fields: [groupId], references: [id])
+    groupId Int
 
     users   UsersOnMeetings[]
-    name    String?
     time    DateTime          @default(now()) @db.Timestamptz()
     roomURL String?
     links   Link[]
@@ -73,7 +80,7 @@ model UsersOnMeetings {
 // Links
 model Link {
     id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now()) @db.Timestamptz()
+    createdAt DateTime @default(now())
     meeting   Meeting  @relation(fields: [meetingId], references: [id])
     meetingId Int
 
