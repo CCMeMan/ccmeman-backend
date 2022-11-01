@@ -28,9 +28,10 @@ router.post("/", async (req, res) => {
   const user_id = db_user.id;
   const group_nanoid = nanoid();
   const group_name = req.body.group_name;
-  console.log(user_id);
-  console.log(group_nanoid);
-  console.log(group_name);
+  const public_email = req.body.public_email;
+  // console.log(user_id);
+  // console.log(group_nanoid);
+  // console.log(group_name);
   const group = await prisma.group.create({
     data: {
       nanoId: group_nanoid,
@@ -41,6 +42,7 @@ router.post("/", async (req, res) => {
             connect: { id: user_id },
           },
           role: Role.MANAGER,
+          publicEmail: public_email,
         },
       },
     },
@@ -112,45 +114,72 @@ router.get("/", async (req, res) => {
   res.send(groups);
 });
 
-// // Update User and return User.
-// router.put("/", async (req, res) => {
-//   // Get Auth0 userID (i.e., sub) from JWT access token.
-//   const auth0UserID = req.auth.sub;
+// Get a Group by group_nano_id
+router.get("/:group_nano_id", async (req, res) => {
+  // Get Auth0 userID (i.e., sub) from JWT access token.
+  const group_nano_id = req.params.group_nano_id;
+  const auth0UserID = req.auth.sub;
+  console.log("Get Group by GET api/groups/group_nano_id : " + auth0UserID);
 
-//   console.log("Update User by PUT api/users/: " + auth0UserID);
-//   console.log(req.body);
+  // Serch for the user in DB
+  let db_user = await prisma.user.findUnique({
+    where: { userIdFromAuth0: auth0UserID },
+  });
 
-//   const email = req.body.email;
-//   const name = req.body.name;
+  // If the corresponding db_user do not exist, send 403.
+  if (!db_user) {
+    res.status(403).send("Please Update User Profile First.");
+    return;
+  }
 
-//   // Serch for the user in DB
-//   let db_user = await prisma.user.findUnique({
-//     where: { userIdFromAuth0: auth0UserID },
-//   });
+  const user_id = db_user.id;
+  console.log(user_id);
 
-//   // If the corresponding db_user do not exist, create one.
-//   if (!db_user) {
-//     await prisma.user.create({
-//       data: {
-//         userIdFromAuth0: auth0UserID,
-//       },
-//     });
-//   }
+  const group = await prisma.group.findMany({
+    where: {
+      nanoId: group_nano_id,
+      users: {
+        some: { userId: user_id }, // Check the User dose participate in this Group.
+      },
+    },
+    include: {
+      users: {
+        include: { user: { select: { name: true } } },
+      },
+      childGroups: {
+        where: {
+          users: {
+            some: { userId: user_id }, // ChildGroups that the User participated in
+          },
+        },
+        // include: {
+        //   users: {
+        //     include: { user: { select: { name: true } } },
+        //   },
+        // },
+      },
+      meetings: {
+        where: {
+          users: {
+            some: { userId: user_id }, // Meetings that the User participated in
+          },
+        },
+        // include: {
+        //   users: {
+        //     include: { user: { select: { name: true } } },
+        //   },
+        // },
+      },
+    },
+  });
 
-//   // Update user info.
-//   await prisma.user.update({
-//     where: { userIdFromAuth0: auth0UserID },
-//     data: {
-//       email: email,
-//       name: name,
-//     },
-//   });
+  const groupItem = group[0];
+  if (!groupItem) {
+    res.status(404).send("No such group.");
+    return;
+  }
 
-//   db_user = await prisma.user.findUnique({
-//     where: { userIdFromAuth0: auth0UserID },
-//   });
-
-//   res.send(db_user);
-// });
+  res.send(groupItem);
+});
 
 export default router;
