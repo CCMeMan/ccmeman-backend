@@ -1,7 +1,7 @@
 import express from "express";
 import { checkJwt } from "../auth.js";
 import { PrismaClient, Role } from "@prisma/client";
-import short_uuid from "short-uuid";
+import { nanoid } from "nanoid";
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -22,17 +22,18 @@ router.post("/", async (req, res) => {
   // If the corresponding db_user do not exist, send 403.
   if (!db_user) {
     res.status(403).send("Please Update User Profile First.");
+    return;
   }
 
   const user_id = db_user.id;
-  const group_suuid = short_uuid.generate();
+  const group_nanoid = nanoid();
   const group_name = req.body.group_name;
   console.log(user_id);
-  console.log(group_suuid);
+  console.log(group_nanoid);
   console.log(group_name);
   const group = await prisma.group.create({
     data: {
-      sUUID: group_suuid,
+      nanoId: group_nanoid,
       name: group_name,
       users: {
         create: {
@@ -65,6 +66,7 @@ router.get("/", async (req, res) => {
   // If the corresponding db_user do not exist, send 403.
   if (!db_user) {
     res.status(403).send("Please Update User Profile First.");
+    return;
   }
 
   const user_id = db_user.id;
