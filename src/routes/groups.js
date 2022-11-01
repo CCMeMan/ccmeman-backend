@@ -173,7 +173,7 @@ router.get("/:group_nano_id", async (req, res) => {
     },
   });
 
-  const groupItem = group[0];
+  const groupItem = group[0]; // Since we used findMany, we unwrap the returned array.
   if (!groupItem) {
     res.status(404).send("No such group.");
     return;
