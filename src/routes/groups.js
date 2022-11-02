@@ -144,7 +144,7 @@ router.get("/:group_nano_id", async (req, res) => {
     },
     include: {
       users: {
-        include: { user: { select: { name: true } } },
+        include: { user: { select: { name: true, userIdFromAuth0: true } } },
       },
       childGroups: {
         where: {

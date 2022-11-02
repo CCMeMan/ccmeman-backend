@@ -5,6 +5,7 @@ import dotenv from "dotenv-defaults";
 import router_index from "./routes/index.js";
 import router_users from "./routes/users.js";
 import router_groups from "./routes/groups.js";
+import router_meetings from "./routes/meetings.js";
 
 // Init
 const app = express();
@@ -14,6 +15,7 @@ dotenv.config();
 app.use("/", router_index);
 app.use("/api/v1/users", router_users);
 app.use("/api/v1/groups", router_groups);
+app.use("/api/v1/meetings", router_meetings);
 
 
 // Listen

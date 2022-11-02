@@ -32,7 +32,10 @@ model User {
 
 // Groups
 model Group {
-    id            Int             @id @default(autoincrement())
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
     nanoId        String          @unique
     name          String
     users         UsersOnGroups[]
@@ -61,6 +64,7 @@ model UsersOnGroups {
 model Meeting {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     nanoId  String @unique
     name    String
