@@ -106,8 +106,8 @@ router.get("/:group_nano_id", async (req, res) => {
       users: {
         some: {
           userId: user_id,
-          role: { hasSome: [Role.MANAGER, Role.MEMBER] },
-        }, // Check if the User is MANAGER or MEMBER of this group.
+          role: { hasSome: [Role.MANAGER, Role.MEMBER, Role.GUEST] },
+        }, // Check if the User is MANAGER or MEMBER or GUEST of this group.
       },
     },
   });
@@ -120,28 +120,28 @@ router.get("/:group_nano_id", async (req, res) => {
   }
 
   const group_id = groupItem.id;
-  const meeting_nanoid = nanoid();
-  const meeting_name = req.body.meeting_name;
-  const meeting = await prisma.meeting.create({
-    data: {
-      nanoId: meeting_nanoid,
-      name: meeting_name,
+  const meetings = await prisma.meeting.findMany({
+    where: {
       groupId: group_id,
       users: {
-        create: {
-          user: {
-            connect: { id: user_id },
-          },
-          role: Role.MANAGER,
-        },
+        some: {
+          userId: user_id,
+          role: { hasSome: [Role.MANAGER, Role.MEMBER, Role.GUEST] },
+        }, // Check if the User is MANAGER or MEMBER or GUEST of this group.
       },
     },
     include: {
-      users: true,
+      users: {
+        include: {
+          user: {
+            select: { name: true, userIdFromAuth0: true, email: true }, // TODO: maybe to include avatar img url
+          },
+        },
+      },
     },
   });
 
-  res.send(meeting);
+  res.status(200).send(meetings);
 });
 
 // // Get a list of Groups of a User
